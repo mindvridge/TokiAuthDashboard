@@ -57,16 +57,21 @@ def make_api_request(
     Returns:
         API 응답 데이터 또는 None (에러 시)
     """
-    token = get_stored_token()
-    
-    if not token:
-        st.error("인증이 필요합니다. 로그인해주세요.")
-        return None
-    
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+    # 관리자 모드인 경우 특별 처리
+    if st.session_state.get("username") == "admin":
+        # 관리자 모드에서는 토큰 없이 API 호출
+        headers = {"Content-Type": "application/json"}
+    else:
+        token = get_stored_token()
+        
+        if not token:
+            st.error("인증이 필요합니다. 로그인해주세요.")
+            return None
+        
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
     
     url = f"{API_BASE_URL}{endpoint}"
     
@@ -80,17 +85,15 @@ def make_api_request(
             return None
         
         if response.status_code == 401:
-            # 관리자 로그인 사용자는 경고만 표시
             if st.session_state.get("username") == "admin":
-                st.warning("⚠️ 관리자 모드: 일부 API가 user_id 999로 작동합니다.")
-                # 계속 진행
+                st.warning("⚠️ 관리자 모드: API 인증이 필요합니다. 관리자 토큰을 사용하세요.")
+                return None
             else:
                 st.error("인증이 만료되었습니다. 다시 로그인해주세요.")
                 clear_token()
                 return None
         
         if response.status_code == 404:
-            # 404는 데이터가 없는 것이므로 빈 데이터 반환
             st.info("📭 데이터가 없습니다.")
             return None
         
@@ -109,6 +112,10 @@ def verify_token() -> bool:
     Returns:
         토큰 유효 여부
     """
+    # 관리자 모드인 경우 토큰 검증 스킵
+    if st.session_state.get("username") == "admin":
+        return True
+    
     token = get_stored_token()
     
     if not token:
