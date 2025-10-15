@@ -15,7 +15,11 @@ from utils.auth import (
     make_api_request
 )
 
-API_BASE_URL = os.getenv("API_BASE_URL", "https://toki-auth-964943834069.asia-northeast3.run.app")
+# Streamlit Cloud에서는 st.secrets 사용, 로컬에서는 os.getenv 사용
+try:
+    API_BASE_URL = st.secrets.get("API_BASE_URL", "https://toki-auth-964943834069.asia-northeast3.run.app")
+except:
+    API_BASE_URL = os.getenv("API_BASE_URL", "https://toki-auth-964943834069.asia-northeast3.run.app")
 
 
 def render_sidebar():

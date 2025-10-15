@@ -60,7 +60,11 @@ st.markdown("---")
 # ==================== API 연결 설정 ====================
 st.header("🔌 API 연결 설정")
 
-api_url = os.getenv("API_BASE_URL", "https://toki-auth-964943834069.asia-northeast3.run.app")
+# Streamlit Cloud에서는 st.secrets 사용
+try:
+    api_url = st.secrets.get("API_BASE_URL", "https://toki-auth-964943834069.asia-northeast3.run.app")
+except:
+    api_url = os.getenv("API_BASE_URL", "https://toki-auth-964943834069.asia-northeast3.run.app")
 st.info(f"**API URL**: {api_url}")
 
 # 연결 테스트
