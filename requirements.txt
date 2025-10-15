@@ -4,6 +4,9 @@ streamlit>=1.29.0
 # HTTP 클라이언트
 requests>=2.31.0
 
+# JWT 토큰 생성 (관리자 로그인용)
+python-jose[cryptography]>=3.3.0
+
 # 데이터 처리 및 분석
 pandas>=2.1.0
 numpy>=1.24.0
