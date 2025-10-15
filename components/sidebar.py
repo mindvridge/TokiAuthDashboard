@@ -14,6 +14,7 @@ from utils.auth import (
     get_stored_token,
     make_api_request
 )
+from utils.simple_auth import simple_login
 
 # Streamlit Cloud에서는 st.secrets 사용, 로컬에서는 os.getenv 사용
 try:
@@ -45,11 +46,46 @@ def render_login_sidebar():
     # 로그인 방법 선택
     login_method = st.radio(
         "로그인 방법",
-        ["JWT 토큰 직접 입력", "카카오/구글 로그인"],
-        help="관리자 JWT 토큰을 입력하거나 OAuth로 로그인하세요"
+        ["아이디/비밀번호", "JWT 토큰 직접 입력", "카카오/구글 로그인"],
+        help="관리자 아이디/비밀번호 또는 JWT 토큰으로 로그인하세요"
     )
     
-    if login_method == "JWT 토큰 직접 입력":
+    if login_method == "아이디/비밀번호":
+        # 간단한 아이디/비밀번호 로그인
+        st.info("대시보드 전용 관리자 계정으로 로그인하세요.")
+        
+        username = st.text_input(
+            "아이디",
+            placeholder="admin",
+            help="관리자 아이디"
+        )
+        
+        password = st.text_input(
+            "비밀번호",
+            type="password",
+            placeholder="비밀번호 입력",
+            help="관리자 비밀번호"
+        )
+        
+        if st.button("로그인", type="primary", use_container_width=True):
+            if username and password:
+                # 로그인 시도
+                if simple_login(username, password):
+                    st.success("✅ 로그인 성공!")
+                    st.rerun()
+                else:
+                    st.error("❌ 아이디 또는 비밀번호가 올바르지 않습니다.")
+            else:
+                st.warning("⚠️ 아이디와 비밀번호를 모두 입력해주세요.")
+        
+        # 기본 계정 안내
+        st.markdown("---")
+        st.caption("💡 **기본 계정**")
+        st.caption("아이디: `admin`")
+        st.caption("비밀번호: `admin123`")
+        st.caption("(Secrets에서 변경 가능)")
+    
+    elif login_method == "JWT 토큰 직접 입력":
         # JWT 토큰 직접 입력
         st.info("Toki Auth 서비스에서 로그인 후 받은 JWT 토큰을 입력하세요.")
         
